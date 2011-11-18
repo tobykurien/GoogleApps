@@ -64,6 +64,8 @@ public class GoogleNewsActivity extends Activity {
          pb.setVisibility(View.VISIBLE);
 
       //wv.loadData("<html><head></head><body>Loading Google News...</body></html>",  "text/html", null);
+      wv.enablePlatformNotifications();
+      wv.getSettings().setJavaScriptEnabled(true); 
       wv.loadUrl(getSiteUrl());
       
       // wv.getSettings().setUserAgentString("android");
