@@ -1,6 +1,7 @@
 package com.tobykurien.google_news;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,15 +10,14 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.webkit.WebView.HitTestResult;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class GoogleNewsActivity extends Activity {
-   boolean siteLoaded = false;
    WebView wv;
 
    String[] googleSites = new String[]{ 
@@ -30,6 +30,7 @@ public class GoogleNewsActivity extends Activity {
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.main);
+      CookieSyncManager.createInstance(this);
    }
 
    /**
@@ -69,20 +70,28 @@ public class GoogleNewsActivity extends Activity {
          return;
       }
       
-      if (siteLoaded) return;
-               
       final ProgressBar pb = getProgressBar();
       if (pb != null)
          pb.setVisibility(View.VISIBLE);
 
-      //wv.loadData("<html><head></head><body>Loading Google News...</body></html>",  "text/html", null);
       WebView.enablePlatformNotifications();
       WebSettings settings = wv.getSettings();
       settings.setJavaScriptEnabled(true);
-      settings.setJavaScriptCanOpenWindowsAutomatically(false);
-      settings.setAppCacheEnabled(true);
-      settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+      settings.setJavaScriptCanOpenWindowsAutomatically(false);      
+
+      //Enable local database.
       settings.setDatabaseEnabled(true);
+      String databasePath = this.getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
+      settings.setDatabasePath(databasePath);
+
+      //Enable manifest cache.
+      String cachePath = this.getApplicationContext().getDir("cache",    Context.MODE_PRIVATE).getPath();
+      settings.setAppCachePath(cachePath);
+      settings.setAllowFileAccess(true);
+      settings.setAppCacheEnabled(true);
+      settings.setDomStorageEnabled(true);
+      settings.setAppCacheMaxSize(1024 * 1024 * 8);
+      settings.setCacheMode(WebSettings.LOAD_DEFAULT);
       
       // wv.getSettings().setUserAgentString("android");
       wv.setWebViewClient(new WebViewClient() {
@@ -90,14 +99,15 @@ public class GoogleNewsActivity extends Activity {
          public void onPageFinished(WebView view, String url) {
             if (pb != null)
                pb.setVisibility(View.GONE);
-            siteLoaded = true;
+
+            CookieSyncManager.getInstance().sync();
             super.onPageFinished(view, url);
          }
 
          @Override
          public void onPageStarted(WebView view, String url, Bitmap favicon) {
             Log.d("Google", "loading " + url);
-            siteLoaded = false;
+
             if (pb != null) pb.setVisibility(View.VISIBLE);
             super.onPageStarted(view, url, favicon);
          }
@@ -136,12 +146,19 @@ public class GoogleNewsActivity extends Activity {
             Toast.makeText(GoogleNewsActivity.this, description, Toast.LENGTH_LONG).show();
          }      
       });
+
+      wv.addJavascriptInterface(new Object() {
+         // attempt to override the _window function used by Google+ mobile app
+         public void _window(String url) {
+            throw new IllegalStateException(url); // to indicate success
+         }
+      }, "window");
       
       wv.setOnLongClickListener(new OnLongClickListener() {
          @Override
          public boolean onLongClick(View arg0) {
             String url = wv.getHitTestResult().getExtra();
-            if (url != null && wv.getHitTestResult().getType() == HitTestResult.ANCHOR_TYPE) {
+            if (url != null) {
                Intent i = new Intent(android.content.Intent.ACTION_VIEW);
                i.setData(Uri.parse(url));
                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
