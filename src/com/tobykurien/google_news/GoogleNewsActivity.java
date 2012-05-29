@@ -5,10 +5,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnLongClickListener;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebView.HitTestResult;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -18,7 +22,7 @@ public class GoogleNewsActivity extends Activity {
 
    String[] googleSites = new String[]{ 
      "google.com", "youtube.com",
-     "google.co.za"
+     "google.co.za", "gmail.com"
    };
    
    /** Called when the activity is first created. */
@@ -73,8 +77,12 @@ public class GoogleNewsActivity extends Activity {
 
       //wv.loadData("<html><head></head><body>Loading Google News...</body></html>",  "text/html", null);
       WebView.enablePlatformNotifications();
-      wv.getSettings().setJavaScriptEnabled(true);
-      wv.loadUrl(getSiteUrl());
+      WebSettings settings = wv.getSettings();
+      settings.setJavaScriptEnabled(true);
+      settings.setJavaScriptCanOpenWindowsAutomatically(false);
+      settings.setAppCacheEnabled(true);
+      settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+      settings.setDatabaseEnabled(true);
       
       // wv.getSettings().setUserAgentString("android");
       wv.setWebViewClient(new WebViewClient() {
@@ -88,6 +96,7 @@ public class GoogleNewsActivity extends Activity {
 
          @Override
          public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            Log.d("Google", "loading " + url);
             siteLoaded = false;
             if (pb != null) pb.setVisibility(View.VISIBLE);
             super.onPageStarted(view, url, favicon);
@@ -96,17 +105,23 @@ public class GoogleNewsActivity extends Activity {
          @Override
          public boolean shouldOverrideUrlLoading(WebView view, String url) {
             Uri uri = Uri.parse(url);
+            Log.d("Google", "should override " + uri);
             if ((uri.getScheme().equals("http") || uri.getScheme().equals("https")) 
-                     && !isGoogleSite(uri.getHost())) {
+                     && !isGoogleSite(uri)) {
                Intent i = new Intent(android.content.Intent.ACTION_VIEW);
                i.setData(uri);
-               i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                startActivity(i);
                return true;
             } else if (uri.getScheme().equals("mailto")) {
                Intent i = new Intent(android.content.Intent.ACTION_SEND);
                i.putExtra(android.content.Intent.EXTRA_EMAIL, url);
                i.setType("text/html");
+               startActivity(i);
+               return true;
+            } else if (uri.getScheme().equals("market")) {
+               Intent i = new Intent(android.content.Intent.ACTION_VIEW);
+               i.setData(uri);
+               i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                startActivity(i);
                return true;
             }
@@ -119,11 +134,31 @@ public class GoogleNewsActivity extends Activity {
             // TODO Auto-generated method stub
             super.onReceivedError(view, errorCode, description, failingUrl);
             Toast.makeText(GoogleNewsActivity.this, description, Toast.LENGTH_LONG).show();
-         }         
+         }      
       });
+      
+      wv.setOnLongClickListener(new OnLongClickListener() {
+         @Override
+         public boolean onLongClick(View arg0) {
+            String url = wv.getHitTestResult().getExtra();
+            if (url != null && wv.getHitTestResult().getType() == HitTestResult.ANCHOR_TYPE) {
+               Intent i = new Intent(android.content.Intent.ACTION_VIEW);
+               i.setData(Uri.parse(url));
+               i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+               startActivity(i);
+               return true;
+            }
+            
+            return false;
+         }
+      });
+      
+      wv.loadUrl(getSiteUrl());
    }
    
-   private boolean isGoogleSite(String host) {
+   private boolean isGoogleSite(Uri uri) {
+      //String url = uri.toString();
+      String host = uri.getHost();
       for (String site : googleSites) {
          if (host.toLowerCase().endsWith(site.toLowerCase())) {
             return true;
