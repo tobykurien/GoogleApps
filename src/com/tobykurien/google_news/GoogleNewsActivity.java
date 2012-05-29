@@ -5,13 +5,21 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 public class GoogleNewsActivity extends Activity {
    boolean siteLoaded = false;
+   WebView wv;
+
+   String[] googleSites = new String[]{ 
+     "google.com", "youtube.com",
+     "google.co.za"
+   };
    
    /** Called when the activity is first created. */
    @Override
@@ -44,14 +52,14 @@ public class GoogleNewsActivity extends Activity {
     * @return
     */
    public String getSiteUrl() {
-      return "https://news.google.com/";
+      return "https://mobile.google.com/";
    }
 
    @Override
    protected void onStart() {
       super.onStart();
 
-      WebView wv = getWebView();
+      wv = getWebView();
       if (wv == null) {
          finish();
          return;
@@ -64,8 +72,8 @@ public class GoogleNewsActivity extends Activity {
          pb.setVisibility(View.VISIBLE);
 
       //wv.loadData("<html><head></head><body>Loading Google News...</body></html>",  "text/html", null);
-      wv.enablePlatformNotifications();
-      wv.getSettings().setJavaScriptEnabled(true); 
+      WebView.enablePlatformNotifications();
+      wv.getSettings().setJavaScriptEnabled(true);
       wv.loadUrl(getSiteUrl());
       
       // wv.getSettings().setUserAgentString("android");
@@ -89,21 +97,47 @@ public class GoogleNewsActivity extends Activity {
          public boolean shouldOverrideUrlLoading(WebView view, String url) {
             Uri uri = Uri.parse(url);
             if ((uri.getScheme().equals("http") || uri.getScheme().equals("https")) 
-                     && !uri.getHost().endsWith("google.com")) {
+                     && !isGoogleSite(uri.getHost())) {
                Intent i = new Intent(android.content.Intent.ACTION_VIEW);
                i.setData(uri);
-               startActivity(Intent.createChooser(i, "Open Url"));
+               i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+               startActivity(i);
                return true;
             } else if (uri.getScheme().equals("mailto")) {
                Intent i = new Intent(android.content.Intent.ACTION_SEND);
                i.putExtra(android.content.Intent.EXTRA_EMAIL, url);
                i.setType("text/html");
-               startActivity(Intent.createChooser(i, "Send Email"));
+               startActivity(i);
                return true;
             }
 
             return super.shouldOverrideUrlLoading(view, url);
          }
+         
+         @Override
+         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+            // TODO Auto-generated method stub
+            super.onReceivedError(view, errorCode, description, failingUrl);
+            Toast.makeText(GoogleNewsActivity.this, description, Toast.LENGTH_LONG).show();
+         }         
       });
    }
+   
+   private boolean isGoogleSite(String host) {
+      for (String site : googleSites) {
+         if (host.toLowerCase().endsWith(site.toLowerCase())) {
+            return true;
+         }
+      }
+      return false;
+   }
+   
+   @Override
+   public boolean onKeyDown(int keyCode, KeyEvent event) {
+       if ((keyCode == KeyEvent.KEYCODE_BACK) && wv.canGoBack()) {
+           wv.goBack();
+           return true;
+       }
+       return super.onKeyDown(keyCode, event);
+   }    
 }
