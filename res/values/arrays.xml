@@ -2,7 +2,6 @@
 
     <string-array name="google_sites">
         <item>google.com</item>
-        <item>igoogle.com</item>
         <item>youtube.com</item>
         <item>google.co.za</item>
         <item>gmail.com</item>
@@ -20,7 +19,7 @@
         <item>Mobile home</item>
     </string-array>
     <string-array name="sites_url">
-        <item>https://igoogle.com</item>
+        <item>https://google.com/m/ig</item>
         <item>https://news.google.com</item>
         <item>https://reader.google.com</item>
         <item>https://plus.google.com</item>

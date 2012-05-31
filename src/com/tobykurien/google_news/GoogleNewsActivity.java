@@ -170,7 +170,7 @@ public class GoogleNewsActivity extends Activity {
     * @return
     */
    public String getSiteUrl() {
-      return "https://mobile.google.com/";
+      return getResources().getStringArray(R.array.sites_url)[0];
    }
 
    @Override
