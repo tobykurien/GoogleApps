@@ -1,13 +1,20 @@
 package com.tobykurien.google_news;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.webkit.CookieSyncManager;
@@ -18,51 +25,17 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class GoogleNewsActivity extends Activity {
+   private final int DIALOG_SITE = 1;
+   
    WebView wv;
 
-   String[] googleSites = new String[]{ 
-     "google.com", "youtube.com",
-     "google.co.za", "gmail.com"
-   };
-   
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.main);
       CookieSyncManager.createInstance(this);
-   }
-
-   /**
-    * Return the title bar progress bar to indicate progress
-    * 
-    * @return
-    */
-   public ProgressBar getProgressBar() {
-      return (ProgressBar) findViewById(R.id.site_progress);
-   }
-
-   /**
-    * Return the web view in which to display the site
-    * 
-    * @return
-    */
-   public WebView getWebView() {
-      return (WebView) findViewById(R.id.site_webview);
-   }
-
-   /**
-    * Return the site URL to load
-    * 
-    * @return
-    */
-   public String getSiteUrl() {
-      return "https://mobile.google.com/";
-   }
-
-   @Override
-   protected void onStart() {
-      super.onStart();
+      
 
       wv = getWebView();
       if (wv == null) {
@@ -150,7 +123,7 @@ public class GoogleNewsActivity extends Activity {
       wv.addJavascriptInterface(new Object() {
          // attempt to override the _window function used by Google+ mobile app
          public void _window(String url) {
-            throw new IllegalStateException(url); // to indicate success
+            //throw new IllegalStateException(url); // to indicate success
          }
       }, "window");
       
@@ -170,12 +143,45 @@ public class GoogleNewsActivity extends Activity {
          }
       });
       
-      wv.loadUrl(getSiteUrl());
+      wv.loadUrl(getSiteUrl());      
+   }
+
+   /**
+    * Return the title bar progress bar to indicate progress
+    * 
+    * @return
+    */
+   public ProgressBar getProgressBar() {
+      return (ProgressBar) findViewById(R.id.site_progress);
+   }
+
+   /**
+    * Return the web view in which to display the site
+    * 
+    * @return
+    */
+   public WebView getWebView() {
+      return (WebView) findViewById(R.id.site_webview);
+   }
+
+   /**
+    * Return the site URL to load
+    * 
+    * @return
+    */
+   public String getSiteUrl() {
+      return "https://mobile.google.com/";
+   }
+
+   @Override
+   protected void onStart() {
+      super.onStart();
    }
    
    private boolean isGoogleSite(Uri uri) {
       //String url = uri.toString();
       String host = uri.getHost();
+      String[] googleSites = getResources().getStringArray(R.array.google_sites);
       for (String site : googleSites) {
          if (host.toLowerCase().endsWith(site.toLowerCase())) {
             return true;
@@ -192,4 +198,48 @@ public class GoogleNewsActivity extends Activity {
        }
        return super.onKeyDown(keyCode, event);
    }    
+
+   @Override
+   public boolean onCreateOptionsMenu(Menu menu) {
+      super.onCreateOptionsMenu(menu);
+      MenuInflater inflater = getMenuInflater();
+      inflater.inflate(R.menu.menu, menu);
+      return true;
+   }
+   
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
+      switch (item.getItemId()) {
+         case R.id.menu_site:
+            showDialog(DIALOG_SITE);
+            return true;
+         case R.id.menu_exit:
+            finish();
+            return true;
+      }
+      return false;
+   }   
+   
+   @Override
+   protected Dialog onCreateDialog(int id) {
+      Dialog dialog = null;
+      
+      switch (id) {
+         case DIALOG_SITE:
+            dialog = new AlertDialog.Builder(this)
+               .setTitle("")
+               .setSingleChoiceItems(R.array.sites, 0, new OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface arg0, int arg1) {
+                     arg0.dismiss();
+                     String url = getResources().getStringArray(R.array.sites_url)[arg1];
+                     wv.loadUrl(url);
+                  }
+               })
+               .create();
+            return dialog;
+      }
+      
+      return super.onCreateDialog(id);
+   }
 }
