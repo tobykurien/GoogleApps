@@ -26,7 +26,7 @@ import android.widget.Toast;
 
 public class GoogleNewsActivity extends Activity {
    private final int DIALOG_SITE = 1;
-   
+
    WebView wv;
 
    /** Called when the activity is first created. */
@@ -35,43 +35,43 @@ public class GoogleNewsActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.main);
       CookieSyncManager.createInstance(this);
-      
 
       wv = getWebView();
       if (wv == null) {
          finish();
          return;
       }
-      
+
       final ProgressBar pb = getProgressBar();
-      if (pb != null)
-         pb.setVisibility(View.VISIBLE);
+      if (pb != null) pb.setVisibility(View.VISIBLE);
 
       WebView.enablePlatformNotifications();
       WebSettings settings = wv.getSettings();
       settings.setJavaScriptEnabled(true);
-      settings.setJavaScriptCanOpenWindowsAutomatically(false);      
+      settings.setJavaScriptCanOpenWindowsAutomatically(false);
 
-      //Enable local database.
+      // Enable local database.
       settings.setDatabaseEnabled(true);
       String databasePath = this.getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
       settings.setDatabasePath(databasePath);
 
-      //Enable manifest cache.
-      String cachePath = this.getApplicationContext().getDir("cache",    Context.MODE_PRIVATE).getPath();
+      // Enable manifest cache.
+      String cachePath = this.getApplicationContext().getDir("cache", Context.MODE_PRIVATE).getPath();
       settings.setAppCachePath(cachePath);
       settings.setAllowFileAccess(true);
       settings.setAppCacheEnabled(true);
       settings.setDomStorageEnabled(true);
       settings.setAppCacheMaxSize(1024 * 1024 * 8);
       settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-      
+
       // wv.getSettings().setUserAgentString("android");
       wv.setWebViewClient(new WebViewClient() {
          @Override
          public void onPageFinished(WebView view, String url) {
-            if (pb != null)
-               pb.setVisibility(View.GONE);
+            if (pb != null) pb.setVisibility(View.GONE);
+            
+            // Google+ workaround to prevent opening of blank window
+            wv.loadUrl("javascript:_window=function(url){ location.href=url; }");
 
             CookieSyncManager.getInstance().sync();
             super.onPageFinished(view, url);
@@ -89,8 +89,7 @@ public class GoogleNewsActivity extends Activity {
          public boolean shouldOverrideUrlLoading(WebView view, String url) {
             Uri uri = Uri.parse(url);
             Log.d("Google", "should override " + uri);
-            if ((uri.getScheme().equals("http") || uri.getScheme().equals("https")) 
-                     && !isGoogleSite(uri)) {
+            if ((uri.getScheme().equals("http") || uri.getScheme().equals("https")) && !isGoogleSite(uri)) {
                Intent i = new Intent(android.content.Intent.ACTION_VIEW);
                i.setData(uri);
                startActivity(i);
@@ -111,22 +110,22 @@ public class GoogleNewsActivity extends Activity {
 
             return super.shouldOverrideUrlLoading(view, url);
          }
-         
+
          @Override
          public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             // TODO Auto-generated method stub
             super.onReceivedError(view, errorCode, description, failingUrl);
             Toast.makeText(GoogleNewsActivity.this, description, Toast.LENGTH_LONG).show();
-         }      
+         }
       });
 
       wv.addJavascriptInterface(new Object() {
          // attempt to override the _window function used by Google+ mobile app
-         public void _window(String url) {
-            //throw new IllegalStateException(url); // to indicate success
+         public void open(String url, String stuff, String otherstuff, String morestuff, String yetmorestuff, String yetevenmore) {
+            throw new IllegalStateException(url); // to indicate success
          }
       }, "window");
-      
+
       wv.setOnLongClickListener(new OnLongClickListener() {
          @Override
          public boolean onLongClick(View arg0) {
@@ -138,12 +137,12 @@ public class GoogleNewsActivity extends Activity {
                startActivity(i);
                return true;
             }
-            
+
             return false;
          }
       });
-      
-      wv.loadUrl(getSiteUrl());      
+
+      openSite(getSiteUrl());
    }
 
    /**
@@ -177,27 +176,29 @@ public class GoogleNewsActivity extends Activity {
    protected void onStart() {
       super.onStart();
    }
-   
+
    private boolean isGoogleSite(Uri uri) {
-      //String url = uri.toString();
+      // String url = uri.toString();
       String host = uri.getHost();
       String[] googleSites = getResources().getStringArray(R.array.google_sites);
       for (String site : googleSites) {
-         if (host.toLowerCase().endsWith(site.toLowerCase())) {
-            return true;
-         }
+         if (host.toLowerCase().endsWith(site.toLowerCase())) { return true; }
       }
       return false;
+   }
+
+   public void openSite(String url) {
+      wv.loadUrl(url);
    }
    
    @Override
    public boolean onKeyDown(int keyCode, KeyEvent event) {
-       if ((keyCode == KeyEvent.KEYCODE_BACK) && wv.canGoBack()) {
-           wv.goBack();
-           return true;
-       }
-       return super.onKeyDown(keyCode, event);
-   }    
+      if ((keyCode == KeyEvent.KEYCODE_BACK) && wv.canGoBack()) {
+         wv.goBack();
+         return true;
+      }
+      return super.onKeyDown(keyCode, event);
+   }
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
@@ -206,7 +207,7 @@ public class GoogleNewsActivity extends Activity {
       inflater.inflate(R.menu.menu, menu);
       return true;
    }
-   
+
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       switch (item.getItemId()) {
@@ -218,28 +219,25 @@ public class GoogleNewsActivity extends Activity {
             return true;
       }
       return false;
-   }   
-   
+   }
+
    @Override
    protected Dialog onCreateDialog(int id) {
       Dialog dialog = null;
-      
+
       switch (id) {
          case DIALOG_SITE:
-            dialog = new AlertDialog.Builder(this)
-               .setTitle("")
-               .setSingleChoiceItems(R.array.sites, 0, new OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface arg0, int arg1) {
-                     arg0.dismiss();
-                     String url = getResources().getStringArray(R.array.sites_url)[arg1];
-                     wv.loadUrl(url);
-                  }
-               })
-               .create();
+            dialog = new AlertDialog.Builder(this).setTitle("").setSingleChoiceItems(R.array.sites, 0, new OnClickListener() {
+               @Override
+               public void onClick(DialogInterface arg0, int arg1) {
+                  arg0.dismiss();
+                  String url = getResources().getStringArray(R.array.sites_url)[arg1];
+                  openSite(url);
+               }
+            }).create();
             return dialog;
       }
-      
+
       return super.onCreateDialog(id);
    }
 }
