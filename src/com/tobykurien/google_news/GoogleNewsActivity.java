@@ -227,7 +227,7 @@ public class GoogleNewsActivity extends Activity {
 
       switch (id) {
          case DIALOG_SITE:
-            dialog = new AlertDialog.Builder(this).setTitle("").setSingleChoiceItems(R.array.sites, 0, new OnClickListener() {
+            dialog = new AlertDialog.Builder(this).setTitle("Select Site").setItems(R.array.sites, new OnClickListener() {
                @Override
                public void onClick(DialogInterface arg0, int arg1) {
                   arg0.dismiss();

@@ -14,7 +14,7 @@
         <item>Mail</item>
         <item>Calendar</item>
         <item>Tasks</item>
-        <item>Docs</item>
+        <item>Docs/Drive</item>
         <item>Mobile home</item>
     </string-array>
     <string-array name="sites_url">
@@ -25,7 +25,7 @@
         <item>https://mail.google.com</item>
         <item>https://calendar.google.com</item>
         <item>https://mail.google.com/tasks</item>
-        <item>https://docs.google.com</item>
+        <item>https://drive.google.com</item>
         <item>https://mobile.google.com</item>
     </string-array>
 
