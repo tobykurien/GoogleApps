@@ -19,7 +19,6 @@
         <item>Mobile home</item>
     </string-array>
     <string-array name="sites_url">
-        <item>https://google.com/m/ig</item>
         <item>https://news.google.com</item>
         <item>https://reader.google.com</item>
         <item>https://plus.google.com</item>
