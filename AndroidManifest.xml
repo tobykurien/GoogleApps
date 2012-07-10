@@ -10,7 +10,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
+
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
@@ -26,7 +26,16 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-                <data android:host="news.google.com"/>
+
+                <category android:name="android.intent.category.DEFAULT" >
+                </category>
+                <category android:name="android.intent.category.BROWSABLE" >
+                </category>
+
+                <data android:host="google.com" />
+                <data android:host="youtube.com" />
+                <data android:host="google.co.za" />
+                <data android:host="gmail.com" />
             </intent-filter>
         </activity>
     </application>
