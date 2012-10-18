@@ -41,7 +41,7 @@ public class GoogleNewsActivity extends Activity {
          finish();
          return;
       }
-
+      
       final ProgressBar pb = getProgressBar();
       if (pb != null) pb.setVisibility(View.VISIBLE);
 
@@ -181,8 +181,10 @@ public class GoogleNewsActivity extends Activity {
       // String url = uri.toString();
       String host = uri.getHost();
       String[] googleSites = getResources().getStringArray(R.array.google_sites);
-      for (String site : googleSites) {
-         if (host.toLowerCase().endsWith(site.toLowerCase())) { return true; }
+      for (String sites : googleSites) {
+         for (String site : sites.split(" ")) {
+            if (host.toLowerCase().endsWith(site.toLowerCase())) { return true; }
+         }
       }
       return false;
    }
