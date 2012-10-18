@@ -2,7 +2,7 @@
 
     <string-array name="google_sites">
         <item>google.com</item>
-        <item>youtube.com</item>
+        <item>accounts.youtube.com</item>
         <item>google.co.za</item>
         <item>gmail.com</item>
     </string-array>
@@ -10,7 +10,7 @@
         <item>News</item>
         <item>Reader</item>
         <item>Google+</item>
-        <item>YouTube</item>
+        <item>Groups</item>
         <item>Mail</item>
         <item>Calendar</item>
         <item>Tasks</item>
@@ -20,8 +20,8 @@
     <string-array name="sites_url">
         <item>https://news.google.com</item>
         <item>https://reader.google.com</item>
-        <item>https://plus.google.com</item>
-        <item>https://youtube.com</item>
+        <item>https://plus.google.com/app/basic/stream?force=1&amp;partnerid=t1&amp;source=apppromo</item>
+        <item>https://groups.google.com</item>
         <item>https://mail.google.com</item>
         <item>https://calendar.google.com</item>
         <item>https://mail.google.com/tasks</item>
