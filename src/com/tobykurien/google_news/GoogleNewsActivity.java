@@ -7,9 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
+import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
@@ -26,6 +29,7 @@ import android.widget.Toast;
 
 public class GoogleNewsActivity extends Activity {
    private final int DIALOG_SITE = 1;
+   private final int DIALOG_TEXT_SIZE = 2;
 
    WebView wv;
 
@@ -64,6 +68,9 @@ public class GoogleNewsActivity extends Activity {
       settings.setAppCacheMaxSize(1024 * 1024 * 8);
       settings.setCacheMode(WebSettings.LOAD_DEFAULT);
 
+      // set preferred text size
+      setTextSize();
+
       // wv.getSettings().setUserAgentString("android");
       wv.setWebViewClient(new WebViewClient() {
          @Override
@@ -79,7 +86,7 @@ public class GoogleNewsActivity extends Activity {
 
          @Override
          public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            Log.d("Google", "loading " + url);
+            Log.d("GoogleApps", "loading " + url);
 
             if (pb != null) pb.setVisibility(View.VISIBLE);
             super.onPageStarted(view, url, favicon);
@@ -87,8 +94,7 @@ public class GoogleNewsActivity extends Activity {
 
          @Override
          public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            Uri uri = Uri.parse(url);
-            Log.d("Google", "should override " + uri);
+            Uri uri = getLoadUri(Uri.parse(url));
             if ((uri.getScheme().equals("http") || uri.getScheme().equals("https")) && !isGoogleSite(uri)) {
                Intent i = new Intent(android.content.Intent.ACTION_VIEW);
                i.setData(uri);
@@ -146,6 +152,23 @@ public class GoogleNewsActivity extends Activity {
    }
 
    /**
+    * Parse the Uri and return an actual Uri to load. This will handle exceptions, like loading a URL
+    * that is passed in the "url" parameter, to bypass click-throughs, etc.
+    * @param uri
+    * @return
+    */
+   protected Uri getLoadUri(Uri uri) {
+      if (uri == null) return uri;
+
+      // handle google news links to external sites directly
+      if (uri.getQueryParameter("url") != null) {
+         return Uri.parse(uri.getQueryParameter("url"));
+      }
+      
+      return uri;
+   }
+
+   /**
     * Return the title bar progress bar to indicate progress
     * 
     * @return
@@ -193,6 +216,21 @@ public class GoogleNewsActivity extends Activity {
       wv.loadUrl(url);
    }
    
+   public void setTextSize() {
+      TextSize textSize = TextSize.NORMAL;
+      
+      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+      switch (pref.getInt("text_size", 2)) {
+         case 0: textSize = TextSize.SMALLEST; break;
+         case 1: textSize = TextSize.SMALLER; break;
+         case 2: textSize = TextSize.NORMAL; break;
+         case 3: textSize = TextSize.LARGER; break;
+         case 4: textSize = TextSize.LARGEST; break;         
+      }
+      
+      wv.getSettings().setTextSize(textSize);
+   }
+   
    @Override
    public boolean onKeyDown(int keyCode, KeyEvent event) {
       if ((keyCode == KeyEvent.KEYCODE_BACK) && wv.canGoBack()) {
@@ -216,6 +254,9 @@ public class GoogleNewsActivity extends Activity {
          case R.id.menu_site:
             showDialog(DIALOG_SITE);
             return true;
+         case R.id.menu_text_size:
+            showDialog(DIALOG_TEXT_SIZE);
+            return true;
          case R.id.menu_exit:
             finish();
             return true;
@@ -235,6 +276,17 @@ public class GoogleNewsActivity extends Activity {
                   arg0.dismiss();
                   String url = getResources().getStringArray(R.array.sites_url)[arg1];
                   openSite(url);
+               }
+            }).create();
+            return dialog;
+         case DIALOG_TEXT_SIZE:
+            dialog = new AlertDialog.Builder(this).setTitle(R.string.menu_text_size).setItems(R.array.text_sizes, new OnClickListener() {
+               @Override
+               public void onClick(DialogInterface arg0, int arg1) {
+                  arg0.dismiss();
+                  SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(GoogleNewsActivity.this);
+                  pref.edit().putInt("text_size", arg1).commit();
+                  setTextSize();
                }
             }).create();
             return dialog;
