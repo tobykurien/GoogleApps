@@ -59,11 +59,11 @@ public class GoogleNewsActivity extends Activity {
          finish();
          return;
       }
+      
+      setupWebView();
    }
    
-   @Override
-   protected void onStart() {
-      super.onStart();
+   protected void setupWebView() {
       
       final ProgressBar pb = getProgressBar();
       if (pb != null) pb.setVisibility(View.VISIBLE);
