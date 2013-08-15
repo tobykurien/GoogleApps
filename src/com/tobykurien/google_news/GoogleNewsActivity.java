@@ -34,15 +34,23 @@ import android.widget.Toast;
 public class GoogleNewsActivity extends Activity {
    private final int DIALOG_SITE = 1;
    private final int DIALOG_TEXT_SIZE = 2;
+   
+   protected boolean v11 = false;
 
    WebView wv;
-   protected float startX;
-   protected float startY;
 
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+      
+      if (Build.VERSION.SDK_INT >= 11 && !v11) {
+         Intent i = new Intent(this, GoogleNewsActivityv11.class);
+         startActivity(i);
+         finish();
+         return;
+      }
+      
       setContentView(R.layout.main);
       CookieSyncManager.createInstance(this);
 
@@ -160,36 +168,6 @@ public class GoogleNewsActivity extends Activity {
       });
 
       openSite(getSiteUrl());
-   }
-
-   /**
-    * Set up the ActionBar if available
-    * @param wv
-    */
-   protected void setupForActionBar(WebView wv) {
-      if (Build.VERSION.SDK_INT >= 11) {
-         ApiLevel11.offsetViewForOverlayAB(this, wv);
-         
-         wv.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View arg0, MotionEvent event) {
-               if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                  startY = event.getY();
-               }
-
-               if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                  if (Math.abs(startY - event.getY()) > new ViewConfiguration().getScaledTouchSlop()) {
-                     if (startY < event.getY()) ApiLevel11.showActionBar(GoogleNewsActivity.this);
-                     else
-                        ApiLevel11.hideActionBar(GoogleNewsActivity.this);
-                  }
-               }
-
-               return false;
-            }
-         });
-      }
-
    }
    
    /**
