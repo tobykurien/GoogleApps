@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -24,6 +25,9 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
    public void onCreate(Bundle savedInstanceState) {
       v11 = true; // prevent recursive activity redirects
       super.onCreate(savedInstanceState);
+      
+      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
+                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
       
       // setup actionbar
       ActionBar ab = getActionBar();
@@ -41,6 +45,8 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
             return true;
          }
       });
+      
+      autohideActionbar();
    }
    
    @Override
@@ -50,15 +56,14 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
       return ret;
    }
 
-   public void offsetViewForOverlayAB(Activity activity, WebView wv) {
-      // Toast.makeText(activity, "ab height: " +
-      // activity.getActionBar().getHeight(), Toast.LENGTH_LONG).show();
-      int marginTop = 72; // activity.getActionBar().getHeight();
-      TextView tv = new TextView(activity);
-      tv.setHeight(marginTop);
-      tv.setVisibility(View.INVISIBLE);
-      wv.addView(tv, 0);
-
+   /**
+    * Attempt to make the actionBar auto-hide and auto-reveal based on drag,
+    * but unfortunately makes the bit under the actionbar mostly inaccessible,
+    * so leaving this out for now.
+    * @param activity
+    * @param wv
+    */
+   public void autohideActionbar() {
       wv.setOnTouchListener(new OnTouchListener() {
          @Override
          public boolean onTouch(View arg0, MotionEvent event) {
@@ -67,7 +72,9 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
             }
 
             if (event.getAction() == MotionEvent.ACTION_MOVE) {
-               if (Math.abs(startY - event.getY()) > new ViewConfiguration().getScaledTouchSlop()) {
+               // avoid juddering by waiting for large-ish drag
+               if (Math.abs(startY - event.getY()) > 
+                  new ViewConfiguration().getScaledTouchSlop() * 5) {
                   if (startY < event.getY()) 
                      getActionBar().show();
                   else
