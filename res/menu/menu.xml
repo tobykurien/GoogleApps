@@ -3,16 +3,20 @@
 
     <item
         android:id="@+id/menu_site"
-        android:icon="@android:drawable/ic_menu_compass"
-        android:title="@string/menu_site"/>
+        android:icon="@drawable/ic_action_site"
+        android:title="@string/menu_site"
+        android:showAsAction="always"/>
+    
     <item
         android:id="@+id/menu_text_size"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:title="@string/menu_text_size">
-    </item>
+        android:icon="@drawable/ic_action_font"
+        android:title="@string/menu_text_size"
+        android:showAsAction="always"/>
+    
     <item
         android:id="@+id/menu_exit"
-        android:icon="@android:drawable/ic_lock_power_off"
-        android:title="@string/menu_exit"/>
+        android:icon="@drawable/ic_action_exit"
+        android:title="@string/menu_exit"
+        android:showAsAction="never"/>
 
 </menu>

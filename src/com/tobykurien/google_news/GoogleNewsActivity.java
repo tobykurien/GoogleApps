@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -17,8 +18,11 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.TextSize;
@@ -32,6 +36,8 @@ public class GoogleNewsActivity extends Activity {
    private final int DIALOG_TEXT_SIZE = 2;
 
    WebView wv;
+   protected float startX;
+   protected float startY;
 
    /** Called when the activity is first created. */
    @Override
@@ -45,11 +51,16 @@ public class GoogleNewsActivity extends Activity {
          finish();
          return;
       }
+   }
+   
+   @Override
+   protected void onStart() {
+      super.onStart();
       
       final ProgressBar pb = getProgressBar();
       if (pb != null) pb.setVisibility(View.VISIBLE);
 
-      WebView.enablePlatformNotifications();
+      // WebView.enablePlatformNotifications();
       WebSettings settings = wv.getSettings();
       settings.setJavaScriptEnabled(true);
       settings.setJavaScriptCanOpenWindowsAutomatically(false);
@@ -76,7 +87,7 @@ public class GoogleNewsActivity extends Activity {
          @Override
          public void onPageFinished(WebView view, String url) {
             if (pb != null) pb.setVisibility(View.GONE);
-            
+
             // Google+ workaround to prevent opening of blank window
             wv.loadUrl("javascript:_window=function(url){ location.href=url; }");
 
@@ -152,8 +163,40 @@ public class GoogleNewsActivity extends Activity {
    }
 
    /**
-    * Parse the Uri and return an actual Uri to load. This will handle exceptions, like loading a URL
+    * Set up the ActionBar if available
+    * @param wv
+    */
+   protected void setupForActionBar(WebView wv) {
+      if (Build.VERSION.SDK_INT >= 11) {
+         ApiLevel11.offsetViewForOverlayAB(this, wv);
+         
+         wv.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View arg0, MotionEvent event) {
+               if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                  startY = event.getY();
+               }
+
+               if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                  if (Math.abs(startY - event.getY()) > new ViewConfiguration().getScaledTouchSlop()) {
+                     if (startY < event.getY()) ApiLevel11.showActionBar(GoogleNewsActivity.this);
+                     else
+                        ApiLevel11.hideActionBar(GoogleNewsActivity.this);
+                  }
+               }
+
+               return false;
+            }
+         });
+      }
+
+   }
+   
+   /**
+    * Parse the Uri and return an actual Uri to load. This will handle
+    * exceptions, like loading a URL
     * that is passed in the "url" parameter, to bypass click-throughs, etc.
+    * 
     * @param uri
     * @return
     */
@@ -161,10 +204,8 @@ public class GoogleNewsActivity extends Activity {
       if (uri == null) return uri;
 
       // handle google news links to external sites directly
-      if (uri.getQueryParameter("url") != null) {
-         return Uri.parse(uri.getQueryParameter("url"));
-      }
-      
+      if (uri.getQueryParameter("url") != null) { return Uri.parse(uri.getQueryParameter("url")); }
+
       return uri;
    }
 
@@ -195,11 +236,6 @@ public class GoogleNewsActivity extends Activity {
       return getResources().getStringArray(R.array.sites_url)[0];
    }
 
-   @Override
-   protected void onStart() {
-      super.onStart();
-   }
-
    private boolean isGoogleSite(Uri uri) {
       // String url = uri.toString();
       String host = uri.getHost();
@@ -215,22 +251,32 @@ public class GoogleNewsActivity extends Activity {
    public void openSite(String url) {
       wv.loadUrl(url);
    }
-   
+
    public void setTextSize() {
       TextSize textSize = TextSize.NORMAL;
-      
+
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
       switch (pref.getInt("text_size", 2)) {
-         case 0: textSize = TextSize.SMALLEST; break;
-         case 1: textSize = TextSize.SMALLER; break;
-         case 2: textSize = TextSize.NORMAL; break;
-         case 3: textSize = TextSize.LARGER; break;
-         case 4: textSize = TextSize.LARGEST; break;         
+         case 0:
+            textSize = TextSize.SMALLEST;
+            break;
+         case 1:
+            textSize = TextSize.SMALLER;
+            break;
+         case 2:
+            textSize = TextSize.NORMAL;
+            break;
+         case 3:
+            textSize = TextSize.LARGER;
+            break;
+         case 4:
+            textSize = TextSize.LARGEST;
+            break;
       }
-      
+
       wv.getSettings().setTextSize(textSize);
    }
-   
+
    @Override
    public boolean onKeyDown(int keyCode, KeyEvent event) {
       if ((keyCode == KeyEvent.KEYCODE_BACK) && wv.canGoBack()) {

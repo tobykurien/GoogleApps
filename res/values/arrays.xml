@@ -10,28 +10,34 @@
     </string-array>
     <string-array name="sites">
         <item>News</item>
-        <item>Reader</item>
         <item>Google+</item>
         <item>Groups</item>
         <item>Ingress Intel</item>
+        <!--  <item>Mobile home</item>
+        -->
         <item>Mail</item>
         <item>Calendar</item>
         <item>Tasks</item>
         <item>Docs/Drive</item>
-        <item>Mobile home</item>
-    </string-array>
+        <item>Maps</item>
+        <item>Accounts</item>
+        <item>Search</item>
+        </string-array>
     <string-array name="sites_url">
         <item>https://news.google.com</item>
-        <item>https://reader.google.com</item>
         <item>https://plus.google.com/app/basic/stream?force=1&amp;partnerid=t1&amp;source=apppromo</item>
         <item>https://groups.google.com</item>
         <item>https://ingress.com/intel</item>
+        <!-- <item>https://mobile.google.com</item>
+        -->
         <item>https://mail.google.com</item>
         <item>https://calendar.google.com</item>
         <item>https://mail.google.com/tasks</item>
         <item>https://drive.google.com</item>
-        <item>https://mobile.google.com</item>
-    </string-array>
+        <item>https://maps.google.com</item>
+        <item>https://accounts.google.com</item>
+        <item>https://google.com</item>
+        </string-array>
     <string-array name="text_sizes">
         <item>Smallest</item>
         <item>Smaller</item>
