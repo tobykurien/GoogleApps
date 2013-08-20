@@ -8,28 +8,23 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.View.OnLongClickListener;
-import android.view.View.OnTouchListener;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+
+import com.tobykurien.google_news.webviewclient.WebClient;
 
 public class GoogleNewsActivity extends Activity {
    private final int DIALOG_SITE = 1;
@@ -72,7 +67,9 @@ public class GoogleNewsActivity extends Activity {
       WebSettings settings = wv.getSettings();
       settings.setJavaScriptEnabled(true);
       settings.setJavaScriptCanOpenWindowsAutomatically(false);
-
+      settings.setAllowFileAccess(false);
+      settings.setPluginsEnabled(false);
+      
       // Enable local database.
       settings.setDatabaseEnabled(true);
       String databasePath = this.getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
@@ -91,58 +88,7 @@ public class GoogleNewsActivity extends Activity {
       setTextSize();
 
       // wv.getSettings().setUserAgentString("android");
-      wv.setWebViewClient(new WebViewClient() {
-         @Override
-         public void onPageFinished(WebView view, String url) {
-            if (pb != null) pb.setVisibility(View.GONE);
-
-            // Google+ workaround to prevent opening of blank window
-            wv.loadUrl("javascript:_window=function(url){ location.href=url; }");
-
-            CookieSyncManager.getInstance().sync();
-            super.onPageFinished(view, url);
-         }
-
-         @Override
-         public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            Log.d("GoogleApps", "loading " + url);
-
-            if (pb != null) pb.setVisibility(View.VISIBLE);
-            super.onPageStarted(view, url, favicon);
-         }
-
-         @Override
-         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            Uri uri = getLoadUri(Uri.parse(url));
-            if ((uri.getScheme().equals("http") || uri.getScheme().equals("https")) && !isGoogleSite(uri)) {
-               Intent i = new Intent(android.content.Intent.ACTION_VIEW);
-               i.setData(uri);
-               startActivity(i);
-               return true;
-            } else if (uri.getScheme().equals("mailto")) {
-               Intent i = new Intent(android.content.Intent.ACTION_SEND);
-               i.putExtra(android.content.Intent.EXTRA_EMAIL, url);
-               i.setType("text/html");
-               startActivity(i);
-               return true;
-            } else if (uri.getScheme().equals("market")) {
-               Intent i = new Intent(android.content.Intent.ACTION_VIEW);
-               i.setData(uri);
-               i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-               startActivity(i);
-               return true;
-            }
-
-            return super.shouldOverrideUrlLoading(view, url);
-         }
-
-         @Override
-         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            // TODO Auto-generated method stub
-            super.onReceivedError(view, errorCode, description, failingUrl);
-            Toast.makeText(GoogleNewsActivity.this, description, Toast.LENGTH_LONG).show();
-         }
-      });
+      wv.setWebViewClient(getWebViewClient(pb));
 
       wv.addJavascriptInterface(new Object() {
          // attempt to override the _window function used by Google+ mobile app
@@ -169,23 +115,6 @@ public class GoogleNewsActivity extends Activity {
 
       openSite(getSiteUrl());
    }
-   
-   /**
-    * Parse the Uri and return an actual Uri to load. This will handle
-    * exceptions, like loading a URL
-    * that is passed in the "url" parameter, to bypass click-throughs, etc.
-    * 
-    * @param uri
-    * @return
-    */
-   protected Uri getLoadUri(Uri uri) {
-      if (uri == null) return uri;
-
-      // handle google news links to external sites directly
-      if (uri.getQueryParameter("url") != null) { return Uri.parse(uri.getQueryParameter("url")); }
-
-      return uri;
-   }
 
    /**
     * Return the title bar progress bar to indicate progress
@@ -206,24 +135,21 @@ public class GoogleNewsActivity extends Activity {
    }
 
    /**
+    * Return the web view client for the web view
+    * @param pb
+    * @return
+    */
+   protected WebClient getWebViewClient(final ProgressBar pb) {
+      return new WebClient(this, wv, pb);
+   }
+
+   /**
     * Return the site URL to load
     * 
     * @return
     */
    public String getSiteUrl() {
       return getResources().getStringArray(R.array.sites_url)[0];
-   }
-
-   private boolean isGoogleSite(Uri uri) {
-      // String url = uri.toString();
-      String host = uri.getHost();
-      String[] googleSites = getResources().getStringArray(R.array.google_sites);
-      for (String sites : googleSites) {
-         for (String site : sites.split(" ")) {
-            if (host.toLowerCase().endsWith(site.toLowerCase())) { return true; }
-         }
-      }
-      return false;
    }
 
    public void openSite(String url) {

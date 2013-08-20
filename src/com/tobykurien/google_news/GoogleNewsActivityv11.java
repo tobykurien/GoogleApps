@@ -1,5 +1,8 @@
 package com.tobykurien.google_news;
 
+import com.tobykurien.google_news.webviewclient.WebClient;
+import com.tobykurien.google_news.webviewclient.WebClientv11;
+
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
@@ -14,10 +17,16 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+/**
+ * Extensions to the main activity for Android 3.0+
+ * @author toby
+ */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class GoogleNewsActivityv11 extends GoogleNewsActivity {
+   // variables to track dragging for actionbar auto-hide
    protected float startX;
    protected float startY;
 
@@ -25,7 +34,7 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
    public void onCreate(Bundle savedInstanceState) {
       v11 = true; // prevent recursive activity redirects
       super.onCreate(savedInstanceState);
-      
+
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
                               WindowManager.LayoutParams.FLAG_FULLSCREEN);
       
@@ -54,6 +63,11 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
       boolean ret = super.onCreateOptionsMenu(menu);
       menu.findItem(R.id.menu_site).setVisible(false);
       return ret;
+   }
+   
+   @Override
+   protected WebClient getWebViewClient(ProgressBar pb) {
+      return new WebClientv11(this, wv, pb);
    }
 
    /**
