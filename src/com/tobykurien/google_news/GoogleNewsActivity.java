@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +25,7 @@ import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 
+import com.tobykurien.google_news.utils.Settings;
 import com.tobykurien.google_news.webviewclient.WebClient;
 
 public class GoogleNewsActivity extends Activity {
@@ -31,6 +33,7 @@ public class GoogleNewsActivity extends Activity {
    private final int DIALOG_TEXT_SIZE = 2;
    
    protected boolean v11 = false;
+   public static boolean reload = false;
 
    WebView wv;
 
@@ -58,8 +61,16 @@ public class GoogleNewsActivity extends Activity {
       setupWebView();
    }
    
-   protected void setupWebView() {
-      
+   @Override
+   protected void onResume() {
+      super.onResume();
+      if (reload) {
+         reload = false;
+         setupWebView();
+      }
+   }
+   
+   protected void setupWebView() {      
       final ProgressBar pb = getProgressBar();
       if (pb != null) pb.setVisibility(View.VISIBLE);
 
@@ -87,7 +98,11 @@ public class GoogleNewsActivity extends Activity {
       // set preferred text size
       setTextSize();
 
-      // wv.getSettings().setUserAgentString("android");
+      String userAgent = Settings.getSettings(this).getUserAgent();
+      if (!userAgent.equals("")) {
+         wv.getSettings().setUserAgentString(userAgent);
+      }
+      
       wv.setWebViewClient(getWebViewClient(pb));
 
       wv.addJavascriptInterface(new Object() {
@@ -159,8 +174,8 @@ public class GoogleNewsActivity extends Activity {
    public void setTextSize() {
       TextSize textSize = TextSize.NORMAL;
 
-      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-      switch (pref.getInt("text_size", 2)) {
+      int size = Settings.getSettings(this).getFontSize(); 
+      switch (size) {
          case 0:
             textSize = TextSize.SMALLEST;
             break;
@@ -207,8 +222,10 @@ public class GoogleNewsActivity extends Activity {
          case R.id.menu_stop:
             wv.stopLoading();
             return true;
-         case R.id.menu_text_size:
-            showDialog(DIALOG_TEXT_SIZE);
+         case R.id.menu_settings:
+            //showDialog(DIALOG_TEXT_SIZE);
+            Intent i = new Intent(this, Preferences.class);
+            startActivity(i);
             return true;
          case R.id.menu_exit:
             finish();
@@ -216,7 +233,7 @@ public class GoogleNewsActivity extends Activity {
       }
       return false;
    }
-
+   
    @Override
    protected Dialog onCreateDialog(int id) {
       Dialog dialog = null;

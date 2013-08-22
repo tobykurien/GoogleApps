@@ -42,6 +42,9 @@
             android:name=".GoogleNewsActivityv11"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name" />
+        <activity
+            android:name=".Preferences"
+            android:label="@string/app_name" />
     </application>
 
 </manifest>

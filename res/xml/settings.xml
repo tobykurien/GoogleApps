@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <CheckBoxPreference
+        android:title="Block HTTP requests"
+        android:summary="Only use HTTPS requests for security"
+        android:defaultValue="true"
+        android:key="block_http"/>
+
+    <CheckBoxPreference
+        android:title="Block 3rd party requests"
+        android:summary="Don't load anything outside Google's domains"
+        android:defaultValue="true"
+        android:key="block_3rd_party"/>    
+
+    <ListPreference
+        android:title="Font Size"
+        android:summary="Change the rendered font size"
+        android:entries="@array/text_sizes"
+        android:entryValues="@array/text_size_values"
+        android:defaultValue="2"
+        android:key="font_size"
+        android:persistent="true" />    
+    
+    <ListPreference
+        android:title="User Agent"
+        android:summary="Affects how Google sites render on your device"
+        android:defaultValue=""
+        android:entries="@array/user_agents"
+        android:entryValues="@array/user_agent_strings"
+        android:key="user_agent"
+        android:persistent="true" />
+
+</PreferenceScreen>
