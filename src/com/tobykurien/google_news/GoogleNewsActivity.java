@@ -204,6 +204,9 @@ public class GoogleNewsActivity extends Activity {
          case R.id.menu_site:
             showDialog(DIALOG_SITE);
             return true;
+         case R.id.menu_stop:
+            wv.stopLoading();
+            return true;
          case R.id.menu_text_size:
             showDialog(DIALOG_TEXT_SIZE);
             return true;

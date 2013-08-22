@@ -12,6 +12,12 @@
         android:icon="@drawable/ic_action_font"
         android:title="@string/menu_text_size"
         android:showAsAction="always"/>
+
+    <item
+        android:id="@+id/menu_stop"
+        android:icon="@drawable/ic_action_stop"
+        android:title="@string/menu_stop"
+        android:showAsAction="always"/>
     
     <item
         android:id="@+id/menu_exit"
