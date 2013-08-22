@@ -24,7 +24,7 @@ public class WebClientv11 extends WebClient {
    @Override
    public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
       // Block 3rd party requests (i.e. scripts/iframes/etc. outside Google's domains)
-      // and also any unencrpted connections
+      // and also any unencrypted connections
       if (!url.startsWith("https://") || !isGoogleSite(Uri.parse(url))) {
          //Log.d("wvc11", "Blocking " + url);
          return new WebResourceResponse("text/plain", "utf-8", 

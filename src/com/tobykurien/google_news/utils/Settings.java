@@ -28,10 +28,6 @@ public class Settings {
       return pref.getBoolean("block_3rd_party", true);
    }
    
-   public boolean isBlockHttp() {
-      return pref.getBoolean("block_http", true);
-   }
-
    public int getFontSize() {
       try {
          return Integer.parseInt(pref.getString("font_size", "2"));
