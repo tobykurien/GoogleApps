@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnLongClickListener;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
@@ -36,6 +37,7 @@ public class GoogleNewsActivity extends Activity {
    public static boolean reload = false;
 
    WebView wv;
+   Settings settings;
 
    /** Called when the activity is first created. */
    @Override
@@ -47,6 +49,12 @@ public class GoogleNewsActivity extends Activity {
          startActivity(i);
          finish();
          return;
+      }
+      
+      settings = Settings.getSettings(this);
+      if (settings.isFullscreen()) {
+         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
+                                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
       }
       
       setContentView(R.layout.main);
@@ -64,6 +72,10 @@ public class GoogleNewsActivity extends Activity {
    @Override
    protected void onResume() {
       super.onResume();
+      
+      // reload settings
+      settings = Settings.getSettings(this);
+      
       if (reload) {
          reload = false;
          setupWebView();

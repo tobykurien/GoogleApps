@@ -1,5 +1,6 @@
 package com.tobykurien.google_news;
 
+import com.tobykurien.google_news.utils.Settings;
 import com.tobykurien.google_news.webviewclient.WebClient;
 import com.tobykurien.google_news.webviewclient.WebClientv11;
 
@@ -35,9 +36,6 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
       v11 = true; // prevent recursive activity redirects
       super.onCreate(savedInstanceState);
 
-      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
-                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
-      
       // setup actionbar
       ActionBar ab = getActionBar();
       ab.setDisplayShowTitleEnabled(false);
@@ -57,7 +55,7 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
       
       autohideActionbar();
    }
-   
+
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
       boolean ret = super.onCreateOptionsMenu(menu);
@@ -81,18 +79,20 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
       wv.setOnTouchListener(new OnTouchListener() {
          @Override
          public boolean onTouch(View arg0, MotionEvent event) {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-               startY = event.getY();
-            }
+            if (settings.isHideActionbar()) {
+               if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                  startY = event.getY();
+               }
 
-            if (event.getAction() == MotionEvent.ACTION_MOVE) {
-               // avoid juddering by waiting for large-ish drag
-               if (Math.abs(startY - event.getY()) > 
-                  new ViewConfiguration().getScaledTouchSlop() * 5) {
-                  if (startY < event.getY()) 
-                     getActionBar().show();
-                  else
-                     getActionBar().hide();
+               if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                  // avoid juddering by waiting for large-ish drag
+                  if (Math.abs(startY - event.getY()) > 
+                     new ViewConfiguration().getScaledTouchSlop() * 5) {
+                     if (startY < event.getY()) 
+                        getActionBar().show();
+                     else
+                        getActionBar().hide();
+                  }
                }
             }
 

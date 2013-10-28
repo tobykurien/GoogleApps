@@ -40,4 +40,11 @@ public class Settings {
       return pref.getString("user_agent", "");
    }   
    
+   public boolean isFullscreen() {
+      return pref.getBoolean("fullscreen", false);
+   }
+
+   public boolean isHideActionbar() {
+      return pref.getBoolean("hide_actionbar", true);
+   }
 }
