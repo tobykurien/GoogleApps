@@ -1,5 +1,5 @@
-GApps Sandbox browser
-=====================
+GApps Sandboxed Browser
+=======================
 
 This app started out as a way to view Google News on an Android phone or tablet, 
 but now encompasses Google+, Google News, GMail, Google Maps, Google Groups, and 
