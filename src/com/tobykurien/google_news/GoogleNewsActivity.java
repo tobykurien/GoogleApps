@@ -1,5 +1,6 @@
 package com.tobykurien.google_news;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,20 +13,18 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnLongClickListener;
+import android.view.WindowManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
-
 import com.tobykurien.google_news.utils.Settings;
 import com.tobykurien.google_news.webviewclient.WebClient;
 
@@ -82,6 +81,7 @@ public class GoogleNewsActivity extends Activity {
       }
    }
    
+   @SuppressLint("JavascriptInterface")
    protected void setupWebView() {      
       final ProgressBar pb = getProgressBar();
       if (pb != null) pb.setVisibility(View.VISIBLE);
@@ -91,7 +91,7 @@ public class GoogleNewsActivity extends Activity {
       settings.setJavaScriptEnabled(true);
       settings.setJavaScriptCanOpenWindowsAutomatically(false);
       settings.setAllowFileAccess(false);
-      settings.setPluginsEnabled(false);
+      //settings.setPluginsEnabled(false);
       
       // Enable local database.
       settings.setDatabaseEnabled(true);
