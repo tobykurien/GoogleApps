@@ -1,13 +1,9 @@
 package com.tobykurien.google_news;
 
-import com.tobykurien.google_news.utils.Settings;
-import com.tobykurien.google_news.webviewclient.WebClient;
-import com.tobykurien.google_news.webviewclient.WebClientv11;
-
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,11 +11,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
-import android.view.WindowManager;
-import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
-import android.widget.TextView;
+
+import com.tobykurien.google_news.webviewclient.WebClient;
+import com.tobykurien.google_news.webviewclient.WebClientv11;
 
 /**
  * Extensions to the main activity for Android 3.0+
@@ -30,12 +26,18 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
    // variables to track dragging for actionbar auto-hide
    protected float startX;
    protected float startY;
+   boolean skipInitialLoad = false;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
       v11 = true; // prevent recursive activity redirects
       super.onCreate(savedInstanceState);
 
+      if (getIntent().getAction() == Intent.ACTION_VIEW &&
+               getIntent().getDataString() != null) {
+         skipInitialLoad = true;
+      }
+      
       // setup actionbar
       ActionBar ab = getActionBar();
       ab.setDisplayShowTitleEnabled(false);
@@ -48,7 +50,8 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
          @Override
          public boolean onNavigationItemSelected(int arg0, long arg1) {
             String url = getResources().getStringArray(R.array.sites_url)[arg0];
-            openSite(url);
+            if (!skipInitialLoad) openSite(url);
+            else skipInitialLoad = false;
             return true;
          }
       });

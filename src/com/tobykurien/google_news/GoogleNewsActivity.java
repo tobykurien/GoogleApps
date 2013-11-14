@@ -32,7 +32,7 @@ public class GoogleNewsActivity extends Activity {
    private final int DIALOG_SITE = 1;
    private final int DIALOG_TEXT_SIZE = 2;
    
-   protected boolean v11 = false;
+   protected boolean v11 = false; // flag to prevent recursive call to v11 activity
    public static boolean reload = false;
 
    WebView wv;
@@ -44,7 +44,10 @@ public class GoogleNewsActivity extends Activity {
       super.onCreate(savedInstanceState);
       
       if (Build.VERSION.SDK_INT >= 11 && !v11) {
+         // v11 flag will be set by GoogleNewsActivityv11
          Intent i = new Intent(this, GoogleNewsActivityv11.class);
+         if (getIntent().getAction() != null) i.setAction(getIntent().getAction());
+         if (getIntent().getData() != null) i.setData(getIntent().getData());
          startActivity(i);
          finish();
          return;
@@ -140,7 +143,12 @@ public class GoogleNewsActivity extends Activity {
          }
       });
 
-      openSite(getSiteUrl());
+      if (Intent.ACTION_VIEW == getIntent().getAction() &&
+               getIntent().getDataString() != null) {
+         openSite(getIntent().getDataString());
+      } else {
+         openSite(getSiteUrl());
+      }
    }
 
    /**
