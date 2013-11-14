@@ -143,8 +143,7 @@ public class GoogleNewsActivity extends Activity {
          }
       });
 
-      if (Intent.ACTION_VIEW == getIntent().getAction() &&
-               getIntent().getDataString() != null) {
+      if (getIntent().getDataString() != null) {
          openSite(getIntent().getDataString());
       } else {
          openSite(getSiteUrl());

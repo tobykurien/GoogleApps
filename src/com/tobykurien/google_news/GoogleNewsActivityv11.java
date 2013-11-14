@@ -33,8 +33,7 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
       v11 = true; // prevent recursive activity redirects
       super.onCreate(savedInstanceState);
 
-      if (getIntent().getAction() == Intent.ACTION_VIEW &&
-               getIntent().getDataString() != null) {
+      if (getIntent().getDataString() != null) {
          skipInitialLoad = true;
       }
       
