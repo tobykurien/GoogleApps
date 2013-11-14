@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="7"
-        android:targetSdkVersion="14" />
+        android:targetSdkVersion="18" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -32,10 +32,13 @@
                 <category android:name="android.intent.category.BROWSABLE" >
                 </category>
 
-                <data android:host="google.com" />
-                <data android:host="youtube.com" />
-                <data android:host="google.co.za" />
-                <data android:host="gmail.com" />
+                <data android:scheme="https" android:host="google.com" />
+                <data android:scheme="https" android:host="plus.google.com" />
+                <data android:scheme="https" android:host="groups.google.com" />
+                <data android:scheme="https" android:host="maps.google.com" />
+                <data android:scheme="https" android:host="drive.google.com" />
+                <data android:scheme="https" android:host="youtube.com" />
+                <data android:scheme="https" android:host="gmail.com" />
             </intent-filter>
         </activity>
         <activity
