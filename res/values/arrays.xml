@@ -19,6 +19,7 @@
     
     <string-array name="google_sites">
         <item>google.com</item>
+        <item>books.google.com</item>
         <item>accounts.youtube.com</item>
         <item>google.co.za</item>
         <item>gmail.com</item>
@@ -32,12 +33,12 @@
         <item>Google+</item>
         <item>Groups</item>
         <item>Ingress Intel</item>
-<!--   <item>Mobile home</item> -->
         <item>Mail</item>
         <item>Calendar</item>
         <item>Tasks</item>
         <item>Docs/Drive</item>
         <item>Maps</item>
+        <item>Voice</item>
         <item>Accounts</item>
         <item>Search</item>
     </string-array>
@@ -46,12 +47,12 @@
         <item>https://plus.google.com/app/basic/stream?force=1&amp;partnerid=t1&amp;source=apppromo</item>
         <item>https://groups.google.com</item>
         <item>https://ingress.com/intel</item>
-<!--  <item>https://mobile.google.com</item> -->
         <item>https://mail.google.com</item>
         <item>https://calendar.google.com</item>
         <item>https://mail.google.com/tasks</item>
         <item>https://drive.google.com</item>
         <item>https://maps.google.com</item>
+        <item>https://www.google.com/voice/m/</item>
         <item>https://accounts.google.com</item>
         <item>https://google.com</item>
     </string-array>
