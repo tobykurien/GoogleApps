@@ -37,6 +37,7 @@
         <item>Calendar</item>
         <item>Tasks</item>
         <item>Docs/Drive</item>
+        <item>Keep</item>
         <item>Maps</item>
         <item>Voice</item>
         <item>Accounts</item>
@@ -51,6 +52,7 @@
         <item>https://calendar.google.com</item>
         <item>https://mail.google.com/tasks</item>
         <item>https://drive.google.com</item>
+        <item>https://drive.google.com/keep</item>
         <item>https://maps.google.com</item>
         <item>https://www.google.com/voice/m/</item>
         <item>https://accounts.google.com</item>
