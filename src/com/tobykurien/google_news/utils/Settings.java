@@ -1,16 +1,13 @@
 package com.tobykurien.google_news.utils;
 
-import java.util.HashMap;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 public class Settings {
-	private SharedPreferences pref;
+	protected SharedPreferences pref;
 	
-	private Settings(SharedPreferences preferences) {
+	protected Settings(SharedPreferences preferences) {
 		pref = preferences;
 	}
 	

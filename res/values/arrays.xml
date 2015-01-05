@@ -1,4 +1,6 @@
 <resources>
+    <string-array name="empty_array"/>
+    
     <string-array name="user_agents">
         <item>Default</item>
         <item>Desktop</item>
