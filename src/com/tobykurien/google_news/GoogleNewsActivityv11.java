@@ -5,8 +5,11 @@ import java.util.Set;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,7 +17,6 @@ import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.tobykurien.google_news.utils.Settingsv11;
 import com.tobykurien.google_news.webviewclient.WebClient;
@@ -26,7 +28,7 @@ import com.tobykurien.google_news.webviewclient.WebClientv11;
  * @author toby
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class GoogleNewsActivityv11 extends GoogleNewsActivity {
+public class GoogleNewsActivityv11 extends GoogleNewsActivity implements OnSharedPreferenceChangeListener {
 	// variables to track dragging for actionbar auto-hide
 	protected float startX;
 	protected float startY;
@@ -42,11 +44,15 @@ public class GoogleNewsActivityv11 extends GoogleNewsActivity {
 		}
 
 		setupActionBar();
+		
+		PreferenceManager.getDefaultSharedPreferences(this)
+			.registerOnSharedPreferenceChangeListener(this);
 	}
 	
 	@Override
-	protected void onResume() {
-		super.onResume();
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+			String key) {
+		// reload the actionbar when preferences change
 		setupActionBar();
 	}
 
