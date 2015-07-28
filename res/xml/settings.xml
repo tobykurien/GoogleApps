@@ -5,7 +5,7 @@
         android:title="Block 3rd party requests"
         android:summary="Don't load images/scripts outside Google's domains"
         android:defaultValue="true"
-        android:key="block_3rd_party"/>    
+        android:key="block_3rd_party"/>
 
     <ListPreference
         android:title="Font Size"

@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,12 +26,16 @@ import android.webkit.WebSettings;
 import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
 import com.tobykurien.google_news.utils.Settings;
 import com.tobykurien.google_news.webviewclient.WebClient;
 
 public class GoogleNewsActivity extends Activity {
    private final int DIALOG_SITE = 1;
    private final int DIALOG_TEXT_SIZE = 2;
+
+   private boolean load_images = true;
    
    protected boolean v11 = false; // flag to prevent recursive call to v11 activity
    public static boolean reload = false;
@@ -94,8 +99,7 @@ public class GoogleNewsActivity extends Activity {
       settings.setJavaScriptEnabled(true);
       settings.setJavaScriptCanOpenWindowsAutomatically(false);
       settings.setAllowFileAccess(false);
-      //settings.setPluginsEnabled(false);
-      
+
       // Enable local database.
       settings.setDatabaseEnabled(true);
       String databasePath = this.getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
@@ -109,6 +113,7 @@ public class GoogleNewsActivity extends Activity {
       settings.setDomStorageEnabled(true);
       settings.setAppCacheMaxSize(1024 * 1024 * 8);
       settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+       settings.setLoadsImagesAutomatically(Settings.getSettings(this).isLoadImages());
 
       // set preferred text size
       setTextSize();
@@ -241,6 +246,15 @@ public class GoogleNewsActivity extends Activity {
          case R.id.menu_stop:
             wv.stopLoading();
             return true;
+         case R.id.menu_toggle_images:
+            if(load_images == true){
+                load_images = false;
+            } else if (load_images == false) {
+                load_images = true;
+            }
+             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(GoogleNewsActivity.this);
+             pref.edit().putBoolean("load_images", load_images).commit();
+             return true;
          case R.id.menu_settings:
             //showDialog(DIALOG_TEXT_SIZE);
             Intent i = new Intent(this, Preferences.class);

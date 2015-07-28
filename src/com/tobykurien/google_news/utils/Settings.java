@@ -24,7 +24,7 @@ public class Settings {
    public boolean isBlock3rdParty() {
       return pref.getBoolean("block_3rd_party", true);
    }
-   
+
    public int getFontSize() {
       try {
          return Integer.parseInt(pref.getString("font_size", "2"));
@@ -35,7 +35,7 @@ public class Settings {
    
    public String getUserAgent() {
       return pref.getString("user_agent", "");
-   }   
+   }
    
    public boolean isFullscreen() {
       return pref.getBoolean("fullscreen", false);
@@ -44,4 +44,6 @@ public class Settings {
    public boolean isHideActionbar() {
       return pref.getBoolean("hide_actionbar", true);
    }
+
+    public boolean isLoadImages() { return  pref.getBoolean("load_images", true); }
 }
