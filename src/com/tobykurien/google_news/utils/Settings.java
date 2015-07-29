@@ -45,5 +45,5 @@ public class Settings {
       return pref.getBoolean("hide_actionbar", true);
    }
 
-    public boolean isLoadImages() { return  pref.getBoolean("load_images", true); }
+    public boolean isLoadImages() { return pref.getBoolean("load_images", true); }
 }

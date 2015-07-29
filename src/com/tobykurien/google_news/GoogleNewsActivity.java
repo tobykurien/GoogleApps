@@ -247,13 +247,11 @@ public class GoogleNewsActivity extends Activity {
             wv.stopLoading();
             return true;
          case R.id.menu_toggle_images:
-            if(load_images == true){
-                load_images = false;
-            } else if (load_images == false) {
-                load_images = true;
-            }
+             load_images = !load_images;
+             Toast.makeText(this, "Toggle images", Toast.LENGTH_SHORT).show();
              SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(GoogleNewsActivity.this);
              pref.edit().putBoolean("load_images", load_images).commit();
+             wv.getSettings().setLoadsImagesAutomatically(load_images);
              return true;
          case R.id.menu_settings:
             //showDialog(DIALOG_TEXT_SIZE);
