@@ -9,6 +9,7 @@
 
     <item
         android:id="@+id/menu_toggle_images"
+        android:icon="@drawable/ic_action_image"
         android:title="Toggle Images"
         android:showAsAction="ifRoom"/>
     
@@ -23,11 +24,4 @@
         android:icon="@drawable/ic_action_site"
         android:title="@string/menu_site"
         android:showAsAction="ifRoom"/>
-    
-    <item
-        android:id="@+id/menu_exit"
-        android:icon="@drawable/ic_action_exit"
-        android:title="@string/menu_exit"
-        android:showAsAction="never"/>
-
 </menu>

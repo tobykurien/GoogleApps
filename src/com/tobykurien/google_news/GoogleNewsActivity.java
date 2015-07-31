@@ -63,7 +63,7 @@ public class GoogleNewsActivity extends Activity {
          getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
                                  WindowManager.LayoutParams.FLAG_FULLSCREEN);
       }
-      
+
       setContentView(R.layout.main);
       CookieSyncManager.createInstance(this);
 
@@ -72,7 +72,7 @@ public class GoogleNewsActivity extends Activity {
          finish();
          return;
       }
-      
+
       setupWebView();
    }
    
@@ -234,6 +234,8 @@ public class GoogleNewsActivity extends Activity {
       super.onCreateOptionsMenu(menu);
       MenuInflater inflater = getMenuInflater();
       inflater.inflate(R.menu.menu, menu);
+       menu.findItem(R.id.menu_toggle_images).setIcon(Settings.getSettings(this).isLoadImages() ?
+               R.drawable.ic_action_image : R.drawable.ic_action_broken_image);
       return true;
    }
 
@@ -250,16 +252,14 @@ public class GoogleNewsActivity extends Activity {
              load_images = !load_images;
              Toast.makeText(this, "Toggle images", Toast.LENGTH_SHORT).show();
              SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(GoogleNewsActivity.this);
-             pref.edit().putBoolean("load_images", load_images).commit();
+             pref.edit().putBoolean("load_images", load_images).apply();
+             item.setIcon(load_images ? R.drawable.ic_action_image : R.drawable.ic_action_broken_image);
              wv.getSettings().setLoadsImagesAutomatically(load_images);
              return true;
          case R.id.menu_settings:
             //showDialog(DIALOG_TEXT_SIZE);
             Intent i = new Intent(this, Preferences.class);
-            startActivity(i);
-            return true;
-         case R.id.menu_exit:
-            finish();
+             startActivity(i);
             return true;
       }
       return false;
