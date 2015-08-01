@@ -41,6 +41,8 @@ public class WebClient extends WebViewClient {
       Log.d("GoogleApps", "loading " + url);
 
       if (pd != null) pd.setVisibility(View.VISIBLE);
+
+
       super.onPageStarted(view, url, favicon);
    }
 

@@ -34,6 +34,8 @@ import com.tobykurien.google_news.webviewclient.WebClient;
 public class GoogleNewsActivity extends Activity {
    private final int DIALOG_SITE = 1;
    private final int DIALOG_TEXT_SIZE = 2;
+   //To match all condition, wrote cutted URL.
+   static final String GPLUS_CONTENT_URL_PREFIX = "https://lh";
 
    private boolean load_images = true;
    
@@ -135,18 +137,25 @@ public class GoogleNewsActivity extends Activity {
       wv.setOnLongClickListener(new OnLongClickListener() {
          @Override
          public boolean onLongClick(View arg0) {
+            Intent i;
             String url = wv.getHitTestResult().getExtra();
-            if (url != null) {
-               Intent i = new Intent(android.content.Intent.ACTION_VIEW);
-               i.setData(Uri.parse(url));
-               i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-               startActivity(i);
-               return true;
+            if(url != null) {
+               if (url.substring(0, 10).equals(GPLUS_CONTENT_URL_PREFIX)) {
+                  i = new Intent(GoogleNewsActivity.this, GPlusImageActivity.class);
+                  i.putExtra("url", url);
+                  startActivity(i);
+               } else {
+                  i = new Intent(android.content.Intent.ACTION_VIEW);
+                  i.setData(Uri.parse(url));
+                  i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                  startActivity(i);
+                  return true;
+               }
             }
-
             return false;
          }
       });
+
 
       if (getIntent().getDataString() != null) {
          openSite(getIntent().getDataString());
