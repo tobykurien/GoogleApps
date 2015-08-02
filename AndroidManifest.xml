@@ -67,10 +67,6 @@
         <activity
             android:name=".Preferences"
             android:label="@string/app_name" />
-        <activity
-            android:name=".GPlusImageActivity"
-            android:label="@string/title_activity_gplus_image" >
-        </activity>
     </application>
 
 </manifest>

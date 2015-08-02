@@ -4,14 +4,19 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -27,9 +32,13 @@ import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.os.Environment;
 
 import com.tobykurien.google_news.utils.Settings;
 import com.tobykurien.google_news.webviewclient.WebClient;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GoogleNewsActivity extends Activity {
    private final int DIALOG_SITE = 1;
@@ -44,6 +53,8 @@ public class GoogleNewsActivity extends Activity {
 
    WebView wv;
    Settings settings;
+    long id;
+    DownloadManager dm;
 
    /** Called when the activity is first created. */
    @Override
@@ -75,6 +86,18 @@ public class GoogleNewsActivity extends Activity {
          return;
       }
 
+       final BroadcastReceiver dmbr = new BroadcastReceiver() {
+           @Override
+           public void onReceive(Context context, Intent intent) {
+               if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())){
+                   long dlid = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
+                   DownloadManager.Query dmq = new DownloadManager.Query();
+                   dmq.setFilterById(id);
+               }
+           }
+       };
+
+       registerReceiver(dmbr, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
       setupWebView();
    }
    
@@ -128,32 +151,39 @@ public class GoogleNewsActivity extends Activity {
       wv.setWebViewClient(getWebViewClient(pb));
 
       wv.addJavascriptInterface(new Object() {
-         // attempt to override the _window function used by Google+ mobile app
-         public void open(String url, String stuff, String otherstuff, String morestuff, String yetmorestuff, String yetevenmore) {
-            throw new IllegalStateException(url); // to indicate success
-         }
+          // attempt to override the _window function used by Google+ mobile app
+          public void open(String url, String stuff, String otherstuff, String morestuff, String yetmorestuff, String yetevenmore) {
+              throw new IllegalStateException(url); // to indicate success
+          }
       }, "window");
 
       wv.setOnLongClickListener(new OnLongClickListener() {
-         @Override
-         public boolean onLongClick(View arg0) {
-            Intent i;
-            String url = wv.getHitTestResult().getExtra();
-            if(url != null) {
-               if (url.substring(0, 10).equals(GPLUS_CONTENT_URL_PREFIX)) {
-                  i = new Intent(GoogleNewsActivity.this, GPlusImageActivity.class);
-                  i.putExtra("url", url);
-                  startActivity(i);
-               } else {
-                  i = new Intent(android.content.Intent.ACTION_VIEW);
+          @Override
+          public boolean onLongClick(View arg0) {
+              Intent i;
+              String url = wv.getHitTestResult().getExtra();
+
+              if (url.substring(0, 10).equals(GPLUS_CONTENT_URL_PREFIX)) {
+                  int lc = url.lastIndexOf("/");
+                  int fc = url.substring(0, lc).lastIndexOf("/");
+                  //Thx lilydjwg
+                  String content_url_real = url.replace(url.substring(fc, lc), "/s0");
+                  dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                  DownloadManager.Request dmrq = new DownloadManager.Request(
+                          Uri.parse(content_url_real));
+                  dmrq.setDestinationInExternalPublicDir("/GPlusContent",
+                          url.substring(lc + 1)); //escape "/"
+                  id = dm.enqueue(dmrq);
+                  return true;
+              } else if (url != null) {
+                 i = new Intent(android.content.Intent.ACTION_VIEW);
                   i.setData(Uri.parse(url));
                   i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                   startActivity(i);
                   return true;
-               }
-            }
-            return false;
-         }
+              }
+              return false;
+          }
       });
 
 
