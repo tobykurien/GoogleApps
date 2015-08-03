@@ -163,28 +163,33 @@ public class GoogleNewsActivity extends Activity {
               Intent i;
               String url = wv.getHitTestResult().getExtra();
 
-              if (url.substring(0, 10).equals(GPLUS_CONTENT_URL_PREFIX)) {
-                  int lc = url.lastIndexOf("/");
-                  int fc = url.substring(0, lc).lastIndexOf("/");
-                  //Thx lilydjwg
-                  String content_url_real = url.replace(url.substring(fc, lc), "/s0");
-                  dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                  DownloadManager.Request dmrq = new DownloadManager.Request(
-                          Uri.parse(content_url_real));
-                  dmrq.setDestinationInExternalPublicDir("/GPlusContent",
-                          url.substring(lc + 1)); //escape "/"
-                  id = dm.enqueue(dmrq);
-                  return true;
-              } else if (url != null) {
-                 i = new Intent(android.content.Intent.ACTION_VIEW);
-                  i.setData(Uri.parse(url));
-                  i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                  startActivity(i);
+              if (url != null) {
+                  if (url.substring(0, 10).equals(GPLUS_CONTENT_URL_PREFIX)) {
+
+                      int lc = url.lastIndexOf("/");
+                      int fc = url.substring(0, lc).lastIndexOf("/");
+                      //Thanks lilydjwg
+                      String content_url_real = url.replace(url.substring(fc, lc), "/s0");
+                      dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                      DownloadManager.Request dmrq = new DownloadManager.Request(
+                              Uri.parse(content_url_real));
+                      String file_name = url.substring(lc + 1); //escape "/"
+                      dmrq.setDestinationInExternalPublicDir("/GPlusContent", file_name);
+                      dmrq.setTitle(file_name);
+                      dmrq.setDescription("Start download content");
+                      id = dm.enqueue(dmrq);
+                  } else {
+                      i = new Intent(android.content.Intent.ACTION_VIEW);
+                      i.setData(Uri.parse(url));
+                      i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                      startActivity(i);
+                  }
                   return true;
               }
               return false;
           }
       });
+
 
 
       if (getIntent().getDataString() != null) {
