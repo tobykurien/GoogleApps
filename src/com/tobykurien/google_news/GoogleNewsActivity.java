@@ -87,17 +87,18 @@ public class GoogleNewsActivity extends Activity {
       }
 
        final BroadcastReceiver dmbr = new BroadcastReceiver() {
-           @Override
-           public void onReceive(Context context, Intent intent) {
-               if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())){
-                   long dlid = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-                   DownloadManager.Query dmq = new DownloadManager.Query();
-                   dmq.setFilterById(id);
+               @Override
+               public void onReceive(Context context, Intent intent) {
+                   if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())){
+                       long dlid = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
+                       DownloadManager.Query dmq = new DownloadManager.Query();
+                       dmq.setFilterById(id);
+                   }
                }
-           }
-       };
+           };
 
        registerReceiver(dmbr, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
       setupWebView();
    }
    
@@ -170,6 +171,7 @@ public class GoogleNewsActivity extends Activity {
                       int fc = url.substring(0, lc).lastIndexOf("/");
                       //Thanks lilydjwg
                       String content_url_real = url.replace(url.substring(fc, lc), "/s0");
+
                       dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                       DownloadManager.Request dmrq = new DownloadManager.Request(
                               Uri.parse(content_url_real));
