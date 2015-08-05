@@ -6,4 +6,8 @@
     <string name="menu_text_size">Font Size</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_settings">Settings</string>
+    <string name="title_activity_gplus_image">GPlusImageActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 </resources>

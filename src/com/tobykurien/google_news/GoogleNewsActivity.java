@@ -4,15 +4,21 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,18 +31,30 @@ import android.webkit.WebSettings;
 import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+import android.os.Environment;
+
 import com.tobykurien.google_news.utils.Settings;
 import com.tobykurien.google_news.webviewclient.WebClient;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GoogleNewsActivity extends Activity {
    private final int DIALOG_SITE = 1;
    private final int DIALOG_TEXT_SIZE = 2;
+   //To match all condition, wrote cutted URL.
+   static final String GPLUS_CONTENT_URL_PREFIX = "https://lh";
+
+   private boolean load_images = true;
    
    protected boolean v11 = false; // flag to prevent recursive call to v11 activity
    public static boolean reload = false;
 
    WebView wv;
    Settings settings;
+    long id;
+    DownloadManager dm;
 
    /** Called when the activity is first created. */
    @Override
@@ -58,7 +76,7 @@ public class GoogleNewsActivity extends Activity {
          getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
                                  WindowManager.LayoutParams.FLAG_FULLSCREEN);
       }
-      
+
       setContentView(R.layout.main);
       CookieSyncManager.createInstance(this);
 
@@ -67,7 +85,20 @@ public class GoogleNewsActivity extends Activity {
          finish();
          return;
       }
-      
+
+       final BroadcastReceiver dmbr = new BroadcastReceiver() {
+               @Override
+               public void onReceive(Context context, Intent intent) {
+                   if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())){
+                       long dlid = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
+                       DownloadManager.Query dmq = new DownloadManager.Query();
+                       dmq.setFilterById(id);
+                   }
+               }
+           };
+
+       registerReceiver(dmbr, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
       setupWebView();
    }
    
@@ -94,8 +125,7 @@ public class GoogleNewsActivity extends Activity {
       settings.setJavaScriptEnabled(true);
       settings.setJavaScriptCanOpenWindowsAutomatically(false);
       settings.setAllowFileAccess(false);
-      //settings.setPluginsEnabled(false);
-      
+
       // Enable local database.
       settings.setDatabaseEnabled(true);
       String databasePath = this.getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
@@ -109,6 +139,7 @@ public class GoogleNewsActivity extends Activity {
       settings.setDomStorageEnabled(true);
       settings.setAppCacheMaxSize(1024 * 1024 * 8);
       settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+       settings.setLoadsImagesAutomatically(Settings.getSettings(this).isLoadImages());
 
       // set preferred text size
       setTextSize();
@@ -121,27 +152,47 @@ public class GoogleNewsActivity extends Activity {
       wv.setWebViewClient(getWebViewClient(pb));
 
       wv.addJavascriptInterface(new Object() {
-         // attempt to override the _window function used by Google+ mobile app
-         public void open(String url, String stuff, String otherstuff, String morestuff, String yetmorestuff, String yetevenmore) {
-            throw new IllegalStateException(url); // to indicate success
-         }
+          // attempt to override the _window function used by Google+ mobile app
+          public void open(String url, String stuff, String otherstuff, String morestuff, String yetmorestuff, String yetevenmore) {
+              throw new IllegalStateException(url); // to indicate success
+          }
       }, "window");
 
       wv.setOnLongClickListener(new OnLongClickListener() {
-         @Override
-         public boolean onLongClick(View arg0) {
-            String url = wv.getHitTestResult().getExtra();
-            if (url != null) {
-               Intent i = new Intent(android.content.Intent.ACTION_VIEW);
-               i.setData(Uri.parse(url));
-               i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-               startActivity(i);
-               return true;
-            }
+          @Override
+          public boolean onLongClick(View arg0) {
+              Intent i;
+              String url = wv.getHitTestResult().getExtra();
 
-            return false;
-         }
+              if (url != null) {
+                  if (url.substring(0, 10).equals(GPLUS_CONTENT_URL_PREFIX)) {
+
+                      int lc = url.lastIndexOf("/");
+                      int fc = url.substring(0, lc).lastIndexOf("/");
+                      //Thanks lilydjwg
+                      String content_url_real = url.replace(url.substring(fc, lc), "/s0");
+
+                      dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                      DownloadManager.Request dmrq = new DownloadManager.Request(
+                              Uri.parse(content_url_real));
+                      String file_name = url.substring(lc + 1); //escape "/"
+                      dmrq.setDestinationInExternalPublicDir("/GPlusContent", file_name);
+                      dmrq.setTitle(file_name);
+                      dmrq.setDescription("Start download content");
+                      id = dm.enqueue(dmrq);
+                  } else {
+                      i = new Intent(android.content.Intent.ACTION_VIEW);
+                      i.setData(Uri.parse(url));
+                      i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                      startActivity(i);
+                  }
+                  return true;
+              }
+              return false;
+          }
       });
+
+
 
       if (getIntent().getDataString() != null) {
          openSite(getIntent().getDataString());
@@ -229,6 +280,8 @@ public class GoogleNewsActivity extends Activity {
       super.onCreateOptionsMenu(menu);
       MenuInflater inflater = getMenuInflater();
       inflater.inflate(R.menu.menu, menu);
+       menu.findItem(R.id.menu_toggle_images).setIcon(Settings.getSettings(this).isLoadImages() ?
+               R.drawable.ic_action_image : R.drawable.ic_action_broken_image);
       return true;
    }
 
@@ -241,13 +294,18 @@ public class GoogleNewsActivity extends Activity {
          case R.id.menu_stop:
             wv.stopLoading();
             return true;
+         case R.id.menu_toggle_images:
+             load_images = !load_images;
+             Toast.makeText(this, "Toggle images", Toast.LENGTH_SHORT).show();
+             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(GoogleNewsActivity.this);
+             pref.edit().putBoolean("load_images", load_images).apply();
+             item.setIcon(load_images ? R.drawable.ic_action_image : R.drawable.ic_action_broken_image);
+             wv.getSettings().setLoadsImagesAutomatically(load_images);
+             return true;
          case R.id.menu_settings:
             //showDialog(DIALOG_TEXT_SIZE);
             Intent i = new Intent(this, Preferences.class);
-            startActivity(i);
-            return true;
-         case R.id.menu_exit:
-            finish();
+             startActivity(i);
             return true;
       }
       return false;
