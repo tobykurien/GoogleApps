@@ -1,6 +1,9 @@
 package com.tobykurien.google_news.webviewclient;
 
 import java.io.ByteArrayInputStream;
+
+import com.tobykurien.google_news.GoogleNewsActivity;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.net.Uri;
@@ -17,7 +20,7 @@ import android.webkit.WebView;
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class WebClientv11 extends WebClient {
-   public WebClientv11(Activity activity, WebView wv, View pd) {
+   public WebClientv11(GoogleNewsActivity activity, WebView wv, View pd) {
       super(activity, wv, pd);
    }
    

@@ -5,5 +5,6 @@
     <string name="menu_exit">Exit</string>
     <string name="menu_text_size">Font Size</string>
     <string name="menu_stop">Stop</string>
+    <string name="menu_refresh">Refresh</string>
     <string name="menu_settings">Settings</string>
 </resources>

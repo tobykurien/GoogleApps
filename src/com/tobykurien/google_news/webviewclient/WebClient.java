@@ -1,9 +1,5 @@
 package com.tobykurien.google_news.webviewclient;
 
-import com.tobykurien.google_news.R;
-import com.tobykurien.google_news.R.array;
-
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -14,12 +10,15 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.tobykurien.google_news.GoogleNewsActivity;
+import com.tobykurien.google_news.R;
+
 public class WebClient extends WebViewClient {
-   Activity activity;
+   GoogleNewsActivity activity;
    WebView wv;
    View pd;
 
-   public WebClient(Activity activity, WebView wv, View pd) {
+   public WebClient(GoogleNewsActivity activity, WebView wv, View pd) {
       this.activity = activity;
       this.wv = wv;
       this.pd = pd;
@@ -28,6 +27,7 @@ public class WebClient extends WebViewClient {
    @Override
    public void onPageFinished(WebView view, String url) {
       if (pd != null) pd.setVisibility(View.GONE);
+      activity.updateStopItem(true);
 
       // Google+ workaround to prevent opening of blank window
       wv.loadUrl("javascript:_window=function(url){ location.href=url; }");
@@ -40,6 +40,7 @@ public class WebClient extends WebViewClient {
    public void onPageStarted(WebView view, String url, Bitmap favicon) {
       Log.d("GoogleApps", "loading " + url);
 
+      activity.updateStopItem(false);
       if (pd != null) pd.setVisibility(View.VISIBLE);
       super.onPageStarted(view, url, favicon);
    }

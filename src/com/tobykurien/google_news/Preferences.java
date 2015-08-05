@@ -16,11 +16,4 @@ public class Preferences extends PreferenceActivity {
          getPreferenceScreen().findPreference("hide_actionbar").setEnabled(false);
       }
    }
-   
-   @Override
-   protected void onPause() {
-      super.onPause();
-      // tell Webview to reload with new settings
-      GoogleNewsActivity.reload = true;
-   }
 }
