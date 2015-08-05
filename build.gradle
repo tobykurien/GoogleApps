@@ -6,30 +6,32 @@ buildscript {
         classpath 'com.android.tools.build:gradle:1.2.3'
     }
 }
+
 apply plugin: 'android'
+
 task wrapper(type: Wrapper) {
     gradleVersion = '1.8'
 }
+
 android {
     compileSdkVersion 22
     buildToolsVersion '22.0.1'
 
 
     dependencies {
-        //compile project(':Xtendroid')
         compile fileTree(dir: 'libs', includes: ['*.jar'])
-        compile fileTree(dir: 'libs-gradle', includes: ['*.jar'])
     }
 
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             aidl.srcDirs = ['src']
-            java.srcDirs = ['src', 'xtend-gen']
+            java.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
     }
 }
+
 dependencies {
 }
