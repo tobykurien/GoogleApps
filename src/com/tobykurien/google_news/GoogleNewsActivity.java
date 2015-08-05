@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -45,7 +44,6 @@ public class GoogleNewsActivity extends Activity implements
 	WebView wv;
 	Settings settings;
 	long id;
-	DownloadManager dm;
 
 	/** Called when the activity is first created. */
 	@Override
