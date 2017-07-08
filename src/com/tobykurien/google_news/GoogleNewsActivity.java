@@ -250,6 +250,8 @@ public class GoogleNewsActivity extends Activity implements
 	}
 
 	public void updateStopItem(boolean pageLoaded) {
+		if (stopMenu == null) return;
+		
 		if (pageLoaded) {
 			stopMenu.setTitle(R.string.menu_refresh);
 			stopMenu.setIcon(R.drawable.ic_action_refresh);
