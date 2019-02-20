@@ -46,6 +46,7 @@
         <item>Voice</item>
         <item>Accounts</item>
         <item>Search</item>
+        <item>Books</item>
     </string-array>
     <string-array name="sites_url">
         <item>https://news.google.com</item>
@@ -62,6 +63,7 @@
         <item>https://www.google.com/voice/m/</item>
         <item>https://accounts.google.com</item>
         <item>https://google.com</item>
+        <item>https://play.google.com/books</item>
     </string-array>
     <string-array name="text_sizes">
         <item>Smallest</item>
