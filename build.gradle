@@ -32,6 +32,10 @@ android {
             assets.srcDirs = ['assets']
         }
     }
+
+	lintOptions {
+          abortOnError false // missing translations
+     }
 }
 
 dependencies {
