@@ -1,6 +1,9 @@
 GApps Sandboxed Browser
 =======================
 
+**NOTE**: Please see [Deprecation of GoogleApps: please try WebApps instead #55](https://github.com/tobykurien/GoogleApps/issues/55)
+
+
 ![Screenshot](graphics/screenshot.png)
 
 This app started out as a way to view Google News on an Android phone or tablet, 
